@@ -49,22 +49,27 @@ ggplot(foo, aes(x=topic,y=prob, col = topic)) +
 
 ######## Topic Distribution
 
-sums= melt(gammaDF %>%
-             summarise_each(funs(sum)))
-sums %>% arrange(desc(value)) %>% head(10)
-
-
-
+mostCommonTopics = function(gdf, n = 10){
+  df = gdf %>%
+    summarise_each(funs(sum)) %>%
+    gather(topic, totalProb) %>%
+    arrange(desc(totalProb)) %>%
+    #separate(topic, c("del", "topic"), 5) %>%
+    #select(-del) %>%
+    head(n)
+  return(df)
+}
 gammaDF = as.data.frame(tm@gamma)
 names(gammaDF) = paste0("topic", 1:length(names(gammaDF)))
 
-betaDF = as.data.frame(tm@beta)
-names(betaDF) = tm@terms
-betaDF$topic = paste0("topic", 1:nrow(betaDF))
+mc = mostCommonTopics(gammaDF, 5)
+df = gammaDF[,mc$topic]
+df2 = gather(df, topic, prob)
+ggplot(df, aes(x=topic35)) + geom_density(fill = "red", alpha =0.5) + 
+  xlim(0,1) +
+  geom_density(aes(x=topic41), fill = "blue", alpha = 0.5) +
+  geom_density(aes(x=topic60), fill = "white", alpha = 0.5)
 
-x=gather(betaDF, word, probability, -topic)
-topic_distribution = 
-  gather(gammaDF %>%
-       summarise_each(funs(sum)),
-       topic,
-       sum)
+ggplot(filter(df2, prob > 0.01), aes(x=prob)) + 
+  geom_density(aes(fill = topic, col = topic), alpha = .5) +
+  xlim(0, 1)
