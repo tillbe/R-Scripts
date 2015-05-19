@@ -49,8 +49,14 @@ runLDA <- function(k, SEED = 2015){
 # adjust this as needed to get best fit
 ks = seq(20,200,20) 
 
+# choose on how many cores you want to run.
+# detectCores() gets all the cores, if you want to run
+# on less, simply subtract or specify manually.
+
+cores = detectCores() 
+
+
 # runs the function on all cores for all ks
-cores=detectCores() 
 output = unlist(mclapply(X=ks, FUN=runLDA, mc.cores=cores))
 
 # save model fits for later plotting and analysis
