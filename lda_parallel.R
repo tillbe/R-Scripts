@@ -1,8 +1,12 @@
 library(topicmodels)
+library(RPushbullet)
 library(tm)
 library(parallel)
 library(ggplot2)
 if (!require("SnowballC")) install.packages("SnowballC")
+
+# to run in background
+# nohup Rscript ./lda_parallel.R >lda.out &
 
 
 # data is stored in variable `text`
@@ -25,6 +29,11 @@ dtm = DocumentTermMatrix(corpus,
                                         removeNumbers = TRUE, 
                                         removePunctuation = TRUE))
 
+##### run if there are still 0-words documents in dtm
+rowTotals = apply(dtm , 1, sum) #Find the sum of words in each Document
+dtm   = dtm[rowTotals> 0, ]           #remove all docs without words from dtm
+text = xdata[which(rowTotals> 0),] #remove all docs without words from input
+
 
 
 # function that runs the LDA models with a given number of topics. 
@@ -33,7 +42,7 @@ dtm = DocumentTermMatrix(corpus,
 # adjust parameters as needed, especially alpha
 
 runLDA <- function(k, SEED = 2015){
-  print(paste0("Model with ", k," topics started!"))
+  pbPost("note", paste0("Model with ", k," topics started!"), "Running...")
   tm = LDA(dtm, k = k, 
            method = "Gibbs",
            control = list(alpha=0.01, # adjust as needed.
@@ -41,7 +50,8 @@ runLDA <- function(k, SEED = 2015){
   l =  topicmodels::logLik(tm) # calculates loglikelihood fit
   # saves the model so we don't have to run it again later
   saveRDS(tm, paste0("model_",k,".rds"))
-  print(paste0("Model with ",k," topics done!"))
+  pbPost("note", paste0("Model with ", k," topics started!"), "Running...")
+  
   return(l)
 }
 
