@@ -32,7 +32,7 @@ dtm = DocumentTermMatrix(corpus,
 ##### run if there are still 0-words documents in dtm
 rowTotals = apply(dtm , 1, sum) #Find the sum of words in each Document
 dtm   = dtm[rowTotals> 0, ]           #remove all docs without words from dtm
-text = xdata[which(rowTotals> 0),] #remove all docs without words from input
+text = text[which(rowTotals> 0),] #remove all docs without words from input
 
 
 
@@ -50,14 +50,14 @@ runLDA <- function(k, SEED = 2015){
   l =  topicmodels::logLik(tm) # calculates loglikelihood fit
   # saves the model so we don't have to run it again later
   saveRDS(tm, paste0("model_",k,".rds"))
-  pbPost("note", paste0("Model with ", k," topics started!"), "Running...")
+  pbPost("note", paste0("Model with ", k," topics done!"), "Donezo...")
   
   return(l)
 }
 
 # number of topics we want to compare
 # adjust this as needed to get best fit
-ks = seq(20,200,20) 
+ks = seq(2,10,1) 
 
 # choose on how many cores you want to run.
 # detectCores() gets all the cores, if you want to run
